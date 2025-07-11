@@ -191,45 +191,38 @@
             let lastScrollPosition = window.scrollY;
             let panelVisible = false;
             let panelHeight = slidingPanel.offsetHeight;
-            let panelOffset = -panelHeight; // Start hidden
+            let panelOffset = -panelHeight; 
             
-            // Set initial position
             slidingPanel.style.transform = `translateY(${panelOffset}px)`;
             
-            // Hide the hint after 3 seconds
             setTimeout(() => {
                 scrollHint.style.opacity = '0';
                 setTimeout(() => scrollHint.style.display = 'none', 500);
             }, 3000);
             
-            // Close button functionality
             closePanelBtn.addEventListener('click', function() {
                 panelOffset = -panelHeight;
                 slidingPanel.style.transform = `translateY(${panelOffset}px)`;
                 panelVisible = false;
             });
             
-            // Scroll handler
+            
             window.addEventListener('scroll', function() {
                 const currentScrollPosition = window.scrollY;
                 const scrollDelta = currentScrollPosition - lastScrollPosition;
                 
-                // Move panel opposite to scroll direction
-                panelOffset -= scrollDelta * 0.5; // Adjust multiplier for sensitivity
-                
-                // Constrain panel movement
-                panelOffset = Math.min(panelOffset, 0); // Don't go above fully visible
-                panelOffset = Math.max(panelOffset, -panelHeight); // Don't go below fully hidden
+                panelOffset -= scrollDelta * 0.5; 
+      
+                panelOffset = Math.min(panelOffset, 0); 
+                panelOffset = Math.max(panelOffset, -panelHeight); 
                 
                 slidingPanel.style.transform = `translateY(${panelOffset}px)`;
-                
-                // Update visibility state
+  
                 panelVisible = panelOffset > -panelHeight;
                 
                 lastScrollPosition = currentScrollPosition;
             });
-            
-            // Touch support for mobile
+   
             let touchStartY = 0;
             let panelStartOffset = 0;
             
@@ -243,15 +236,13 @@
                 const touchDelta = touchY - touchStartY;
                 
                 panelOffset = panelStartOffset + touchDelta;
-                
-                // Constrain panel movement
+              
                 panelOffset = Math.min(panelOffset, 0);
                 panelOffset = Math.max(panelOffset, -panelHeight);
                 
                 slidingPanel.style.transform = `translateY(${panelOffset}px)`;
                 panelVisible = panelOffset > -panelHeight;
-                
-                // Prevent page scroll when interacting with panel
+            
                 if (panelVisible) {
                     e.preventDefault();
                 }
