@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cappen-Style Interactive Hero</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Share Tech Mono', monospace;
+            /* Allow vertical scrolling but hide horizontal scrollbar */
+            overflow-x: hidden; 
+            /* Give the body height to create a scrollbar */
+            height: 200vh; 
+        }
+        
+        /* The main container is now fixed to stay on screen during scroll */
+        .container {
+            position: fixed; /* Changed to fixed */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 40px;
+        }
+
+        /* --- Corner & Side Elements --- */
+        .top-left, .bottom-left, .bottom-right {
+            position: absolute;
+            z-index: 10;
+        }
+        .top-left { top: 40px; left: 40px; font-size: 1rem; }
+        .bottom-left { bottom: 40px; left: 40px; font-size: 1rem; }
+        .bottom-right {
+            bottom: 40px;
+            right: 120px;
+            text-align: right;
+            max-width: 250px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #aaa;
+        }
+
+        /* --- Vertical Bar & Infinite Scroll --- */
+        .start-project-bar {
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 100%;
+            width: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(to bottom, #ff8a00, #e52e71, #4c58d2);
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            overflow: hidden; /* This is crucial for the infinite scroll */
+        }
+        .container.active .start-project-bar {
+            background: #000000;
+            color: #555;
+        }
+
+        /* This container will hold the duplicated text and animate */
+        .text-scroller {
+            display: flex;
+            flex-direction: column;
+            animation: scroll-up 20s linear infinite; /* The animation magic */
+        }
+        
+        .text-scroller span {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-size: 1.5rem;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            padding: 20px 0;
+        }
+
+        @keyframes scroll-up {
+            from {
+                transform: translateY(0);
+            }
+            to {
+                /* Moves up by exactly the height of one of the text blocks */
+                transform: translateY(-50%);
+            }
+        }
+
+        /* --- Central Text Styling & Animation --- */
+        .central-text-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            overflow: hidden;
+            width: 80%;
+            height: 45vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .text-slide {
+            position: absolute;
+            width: 100%;
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .text-line {
+            font-size: 12vw;
+            line-height: 0.9;
+            font-weight: 400;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        .text-outline {
+            color: transparent;
+            -webkit-text-stroke: 1px #ffffff;
+            stroke: 1px #ffffff;
+        }
+        .text-solid { color: #ffffff; }
+        
+        /* --- Animation States (Unchanged) --- */
+        body.loading #digital-makers-slide { transform: translateY(-120%); }
+        body.loading #human-thinkers-slide { transform: translateY(120%); }
+        #digital-makers-slide { transform: translateY(0); }
+        #human-thinkers-slide { transform: translateY(120%); }
+        .container.active #digital-makers-slide { transform: translateY(-120%); }
+        .container.active #human-thinkers-slide { transform: translateY(0); }
+        
+    </style>
+</head>
+<body class="loading">
+
+    <main class="container" id="main-container">
+        
+        <div class="top-left">CAPPEN</div>
+        <div class="bottom-left">FELIPE@CAPPEN.COM</div>
+        <div class="bottom-right">
+            AN INDEPENDENT CREATIVE
+            STUDIO SPECIALIZED IN DIGITAL
+            EXPERIENCES.
+        </div>
+
+        <div class="central-text-wrapper">
+            <div class="text-slide" id="digital-makers-slide">
+                <div class="text-line text-outline">DIGITAL</div>
+                <div class="text-line text-solid">MAKERS</div>
+            </div>
+            <div class="text-slide" id="human-thinkers-slide">
+                <div class="text-line text-solid">HUMAN</div>
+                <div class="text-line text-outline">THINKERS</div>
+            </div>
+        </div>
+
+        <div class="start-project-bar" id="start-project-bar">
+            <!-- Duplicated text for infinite scroll effect -->
+            <div class="text-scroller">
+                <span>START A PROJECT  :  START</span>
+                <span>START A PROJECT  :  START</span>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainContainer = document.getElementById('main-container');
+            const startProjectBar = document.getElementById('start-project-bar');
+
+            // This flag is crucial to prevent scroll and hover events from conflicting
+            let isHovering = false;
+
+            // Page Load Animation
+            setTimeout(() => {
+                document.body.classList.remove('loading');
+            }, 200);
+
+            // --- Hover Interaction Logic ---
+            startProjectBar.addEventListener('mouseenter', () => {
+                isHovering = true;
+                mainContainer.classList.add('active');
+            });
+
+            startProjectBar.addEventListener('mouseleave', () => {
+                isHovering = false;
+                // Only revert if we are scrolled to the top
+                if (window.scrollY === 0) {
+                    mainContainer.classList.remove('active');
+                }
+            });
+
+            // --- Scroll Interaction Logic ---
+            window.addEventListener('scroll', () => {
+                // Only trigger the animation if the mouse is NOT over the bar
+                if (!isHovering) {
+                    if (window.scrollY > 0) {
+                        mainContainer.classList.add('active');
+                    } else {
+                        mainContainer.classList.remove('active');
+                    }
+                }
+            }, { passive: true }); // Use passive listener for better scroll performance
+        });
+    </script>
+</body>
+</html>
