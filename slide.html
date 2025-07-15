@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wix-Style Sticky Panel Scroll</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            /* The body's background shows through where other elements don't cover it */
+            background-color: #f0f0f0;
+            overflow-x: hidden;
+        }
+
+        /* Layer 1: The Hero Section. It is always fixed in the background. */
+        .hero-section {
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+            color: white;
+            
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1; /* Sits behind everything else */
+            transition: opacity 0.3s ease-out;
+        }
+        .hero-content h1 { font-size: 3.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .hero-content p { font-size: 1.2rem; }
+
+        /* This is a wrapper for all the content that scrolls OVER the hero section */
+        .scroll-wrapper {
+            /* This is the key: It pushes all scrolling content down by 100vh, creating the
+               space for the hero section to be visible at the start. */
+            margin-top: 100vh;
+            position: relative;
+            z-index: 2; /* Sits on top of the hero */
+            background-color: transparent; /* Allows body background to show if needed */
+        }
+        
+        /* Layer 2: The Purple Panel. It uses position: sticky. */
+        .sliding-panel {
+            height: 100vh;
+            width: 100%;
+            display: flex; /* Using flex to center content */
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #6e48aa 0%, #9d50bb 100%);
+            color: white;
+            border-radius: 30px 30px 0 0;
+            
+            /* THIS IS THE MAGIC! It will scroll normally until it hits the top, then it sticks. */
+            position: sticky;
+            top: 0;
+            
+            z-index: 2; /* Stays below Layer 3 */
+        }
+        
+        /* A simple container for the panel's content */
+        .panel-wrapper {
+            max-width: 800px;
+            padding: 40px;
+            text-align: center;
+        }
+        .panel-header h2 { font-size: 2.2rem; }
+        .panel-header p { opacity: 0.9; margin-top: 10px; }
+
+        /* Layer 3: The Blue Content Section. This is just a normal block element. */
+        .content-section {
+            /* This section follows the sticky panel. As the panel sticks, this section will
+               appear to scroll up from the bottom and over the top of it. */
+            padding: 80px 20px;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            position: relative; /* Must be relative for z-index to work */
+            z-index: 3; /* Sits on top of the sticky panel */
+            border-radius: 30px 30px 0 0;
+        }
+
+        .content-wrapper {
+            max-width: 1200px;
+            margin: auto;
+        }
+        .content-section h2 { text-align: center; margin-bottom: 40px; font-size: 2.5rem; color: #2c3e50; }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
+        .feature-card { background: rgba(255,255,255,0.8); padding: 30px; border-radius: 15px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .feature-card h3 { font-size: 1.5rem; margin-bottom: 15px; color: #3498db; }
+
+    </style>
+</head>
+<body>
+
+    <!-- Layer 1: Always fixed in the background -->
+    <div class="hero-section" id="heroSection">
+        <div class="hero-content">
+            <h1>Create Your Perfect Website</h1>
+            <p>Scroll down to begin.</p>
+        </div>
+    </div>
+
+    <!-- This wrapper contains everything that scrolls -->
+    <main class="scroll-wrapper">
+    
+        <!-- Layer 2: The panel that will stick to the top -->
+        <section class="sliding-panel" id="slidingPanel">
+            <div class="panel-wrapper">
+                <div class="panel-header">
+                    <h2>YOUR SITE IS READY FOR YOU!</h2>
+                    <p>Let's bring your vision to life</p>
+                </div>
+                <!-- You can add more content here if you want the panel to be scrollable itself -->
+            </div>
+        </section>
+
+        <!-- Layer 3: The content that scrolls over the sticky panel -->
+        <section class="content-section">
+            <div class="content-wrapper">
+                <h2>Why Choose Our Platform?</h2>
+                <div class="feature-grid">
+                    <div class="feature-card"><h3>AI-Powered Design</h3><p>Get personalized design recommendations tailored to your content and style preferences.</p></div>
+                    <div class="feature-card"><h3>900+ Templates</h3><p>Beautiful, professionally designed templates for every industry and use case.</p></div>
+                    <div class="feature-card"><h3>Mobile Optimized</h3><p>Your site will look perfect on all devices, from desktop to smartphone.</p></div>
+                </div>
+            </div>
+            <!-- Add more content here to make this section taller and more scrollable -->
+            <div style="height: 50vh;"></div> 
+        </section>
+
+    </main>
+
+    <script>
+        // This JavaScript is optional. Its only job is to fade out the hero text
+        // as the purple panel scrolls up to cover it. The main sticking
+        // functionality is 100% CSS.
+        document.addEventListener('DOMContentLoaded', function() {
+            const heroSection = document.getElementById('heroSection');
+            const scrollTriggerEnd = window.innerHeight; // The fade will finish after 100vh of scrolling
+
+            function handleScroll() {
+                const scrollY = window.scrollY;
+
+                if (scrollY < scrollTriggerEnd) {
+                    // Calculate fade progress (0 to 1)
+                    const progress = scrollY / scrollTriggerEnd;
+                    // Fade out faster by multiplying progress
+                    //heroSection.style.opacity = 1 - (progress * 1.5);
+                } else {
+                    //heroSection.style.opacity = 0; // Ensure it's fully transparent
+                }
+            }
+
+            window.addEventListener('scroll', handleScroll, { passive: true });
+        });
+    </script>
+
+</body>
+</html>

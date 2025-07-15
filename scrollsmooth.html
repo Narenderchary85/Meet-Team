@@ -13,24 +13,19 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             background-color: #000000;
             color: #ffffff;
             font-family: 'Share Tech Mono', monospace;
-            overflow-x: hidden; 
-            height: 200vh; 
+            overflow: hidden;
+            height: 100vh;
         }
-        
         .container {
-            position: fixed; 
-            top: 0;
-            left: 0;
+            position: relative;
             width: 100%;
             height: 100%;
             padding: 40px;
         }
-
         .top-left, .bottom-left, .bottom-right {
             position: absolute;
             z-index: 10;
@@ -46,7 +41,6 @@
             line-height: 1.5;
             color: #aaa;
         }
-
         .start-project-bar {
             position: absolute;
             top: 0;
@@ -58,20 +52,17 @@
             justify-content: center;
             background: linear-gradient(to bottom, #ff8a00, #e52e71, #4c58d2);
             cursor: pointer;
-            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            transition: background 0.5s cubic-bezier(0.23, 1, 0.32, 1);
             overflow: hidden;
         }
-        .container.active .start-project-bar {
+        .start-project-bar.hovered {
             background: #000000;
-            color: #555;
         }
-
         .text-scroller {
             display: flex;
             flex-direction: column;
             animation: scroll-up 20s linear infinite;
         }
-        
         .text-scroller span {
             writing-mode: vertical-rl;
             text-orientation: mixed;
@@ -80,16 +71,10 @@
             text-transform: uppercase;
             padding: 20px 0;
         }
-
         @keyframes scroll-up {
-            from {
-                transform: translateY(0);
-            }
-            to {
-                transform: translateY(-50%);
-            }
+            from { transform: translateY(0); }
+            to { transform: translateY(-50%); }
         }
-
         .central-text-wrapper {
             position: absolute;
             top: 50%;
@@ -102,36 +87,29 @@
             flex-direction: column;
             justify-content: center;
         }
-
         .text-slide {
             position: absolute;
             width: 100%;
-            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+            will-change: transform;
+        }
+        /* A class for the initial load animation */
+        .text-slide.is-loading {
+            transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
         }
         .text-line {
             font-size: 12vw;
             line-height: 0.9;
-            font-weight: 400;
             text-transform: uppercase;
             text-align: center;
         }
         .text-outline {
             color: transparent;
             -webkit-text-stroke: 1px #ffffff;
-            stroke: 1px #ffffff;
         }
         .text-solid { color: #ffffff; }
-        
-        body.loading #digital-makers-slide { transform: translateY(-120%); }
-        body.loading #human-thinkers-slide { transform: translateY(120%); }
-        #digital-makers-slide { transform: translateY(0); }
-        #human-thinkers-slide { transform: translateY(120%); }
-        .container.active #digital-makers-slide { transform: translateY(-120%); }
-        .container.active #human-thinkers-slide { transform: translateY(0); }
-        
     </style>
 </head>
-<body class="loading">
+<body>
 
     <main class="container" id="main-container">
         
@@ -165,36 +143,91 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const mainContainer = document.getElementById('main-container');
             const startProjectBar = document.getElementById('start-project-bar');
+            const digitalSlide = document.getElementById('digital-makers-slide');
+            const humanSlide = document.getElementById('human-thinkers-slide');
 
-            let isHovering = false;
+            // --- Animation State Variables ---
+            let targetProgress = 0; // Where the animation should go (0 to 1)
+            let currentProgress = 0; // Where the animation currently is
+            const smoothingFactor = 0.08; // The "lag" amount. Higher is faster.
+            let animationFrameId = null;
 
+            // --- Initial Page Load Animation ---
+            // Set initial off-screen positions before the animation starts
+            digitalSlide.style.transform = 'translateY(-100%)';
+            humanSlide.style.transform = 'translateY(100%)';
+            
             setTimeout(() => {
-                document.body.classList.remove('loading');
+                // Add a temporary transition class for the slide-in
+                digitalSlide.classList.add('is-loading');
+                humanSlide.classList.add('is-loading');
+
+                // Animate to the starting position (progress = 0)
+                digitalSlide.style.transform = 'translateY(0%)';
+                humanSlide.style.transform = 'translateY(100%)';
+
+                // Remove the transition class after the animation so JS can take over
+                setTimeout(() => {
+                    digitalSlide.classList.remove('is-loading');
+                    humanSlide.classList.remove('is-loading');
+                }, 1200); // Must match CSS transition duration
             }, 200);
 
+            
+            // --- The Core Animation Loop ---
+            function tick() {
+                // Calculate the distance to the target
+                const distance = targetProgress - currentProgress;
+
+                // If we are very close to the target, stop the animation loop to save resources
+                if (Math.abs(distance) < 0.001) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                    return;
+                }
+                
+                // The LERP (Linear Interpolation) formula for smoothing
+                currentProgress += distance * smoothingFactor;
+
+                // Apply the smoothed progress to the elements
+                const digitalY = -100 * currentProgress;
+                const humanY = 100 - (100 * currentProgress);
+                digitalSlide.style.transform = `translateY(${digitalY}%)`;
+                humanSlide.style.transform = `translateY(${humanY}%)`;
+
+                // Continue the loop
+                animationFrameId = requestAnimationFrame(tick);
+            }
+
+            function startAnimation() {
+                // Only start a new animation loop if one isn't already running
+                if (!animationFrameId) {
+                    animationFrameId = requestAnimationFrame(tick);
+                }
+            }
+
+            // --- Event Listeners ---
+            document.addEventListener('mousemove', (e) => {
+                // Update the target based on the cursor's vertical position
+                targetProgress = e.clientY / window.innerHeight;
+                startAnimation();
+            });
+
             startProjectBar.addEventListener('mouseenter', () => {
-                isHovering = true;
-                mainContainer.classList.add('active');
+                startProjectBar.classList.add('hovered');
+                // Set the target to the final state (100%)
+                targetProgress = 1;
+                startAnimation();
             });
 
             startProjectBar.addEventListener('mouseleave', () => {
-                isHovering = false;
-                if (window.scrollY === 0) {
-                    mainContainer.classList.remove('active');
-                }
+                startProjectBar.classList.remove('hovered');
+                // When leaving, set the target back to the current mouse position
+                // This will make it smoothly animate back from the hovered state
+                targetProgress = event.clientY / window.innerHeight;
+                startAnimation();
             });
-
-            window.addEventListener('scroll', () => {
-                if (!isHovering) {
-                    if (window.scrollY > 0) {
-                        mainContainer.classList.add('active');
-                    } else {
-                        mainContainer.classList.remove('active');
-                    }
-                }
-            }, { passive: true }); 
         });
     </script>
 </body>

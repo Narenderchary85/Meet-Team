@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rouser-Style Sliding Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000; /* Fallback for footer area */
+            overflow-x: hidden; /* Prevent horizontal scrollbars */
+        }
+        
+        /* Dummy sections to create scrollable space */
+        .spacer {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #ccc;
+            background-color: #111;
+        }
+
+        /* --- The Main Hero Section --- */
+        .hero-section {
+            display: flex;
+            height: 100vh;
+            background-color: #ccff00; /* Electric lime */
+            position: relative;
+            overflow: hidden; /* Crucial for containing the sliding sidebar */
+        }
+
+        /* --- Left Content Area --- */
+        .content-left {
+            flex: 1;
+            padding: 5vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            color: #000;
+        }
+        
+        .hero-section h1 {
+            font-size: clamp(3rem, 10vw, 8rem); /* Responsive font size */
+            font-weight: 900;
+            line-height: 0.9;
+            letter-spacing: -0.04em;
+            margin: 0;
+        }
+
+        .hero-section p {
+            max-width: 500px;
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            line-height: 1.6;
+            margin-top: 40px;
+        }
+
+        .signup-btn {
+            display: inline-block;
+            background-color: #000;
+            color: #fff;
+            text-decoration: none;
+            padding: 16px 32px;
+            border-radius: 9999px; /* Pill shape */
+            font-weight: 700;
+            margin-top: 40px;
+            transition: transform 0.2s ease-out, background-color 0.2s;
+            align-self: flex-start; /* Don't stretch */
+        }
+        .signup-btn:hover {
+            transform: scale(1.05);
+            background-color: #333;
+        }
+
+        /* --- Right Sidebar Area --- */
+        .sidebar-right {
+            width: 450px;
+            max-width: 40%;
+            background-color: #fff;
+            color: #000;
+            padding: 5vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            
+            /* INITIAL STATE: Off-screen to the right */
+            transform: translateX(100%);
+            
+            /* ANIMATION: Smooth transition for the transform property */
+            transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1);
+        }
+        
+        /* VISIBLE STATE: When this class is added, the sidebar slides in */
+        .sidebar-right.is-visible {
+            transform: translateX(0);
+        }
+
+        .sidebar-right h2 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            line-height: 1;
+        }
+        
+        .sidebar-right .subtext {
+            margin-top: 20px;
+            line-height: 1.6;
+            color: #555;
+        }
+        
+        .signup-form {
+            margin-top: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .signup-form input[type="text"],
+        .signup-form input[type="email"] {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .signup-form input::placeholder {
+            color: #aaa;
+        }
+        
+        .signup-form button {
+            width: 100%;
+            padding: 15px;
+            background-color: #000;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .signup-form button:hover {
+            background-color: #333;
+        }
+
+        /* --- Footer --- */
+        footer {
+            background-color: #000;
+            color: #fff;
+            padding: 40px 5vw;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-links a {
+            color: #ccff00;
+            text-decoration: underline;
+            margin-right: 20px;
+        }
+
+        .footer-credits {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #aaa;
+        }
+        
+        .footer-logo {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #555;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="spacer"><span>Scroll Down</span></div>
+
+    <section class="hero-section" id="hero">
+        <div class="content-left">
+            <h1>Let's burst some damn bubbles.</h1>
+            <p>We're growing a gang of people who care enough to help our interventions spread like an unseasonal forest fire. Sign up to get them as they drop and help wake up the world.</p>
+            <a href="#" class="signup-btn">Sign up now →</a>
+        </div>
+        
+        <aside class="sidebar-right" id="sidebar">
+            <h2>You'll only hear from us when it matters.</h2>
+            <p class="subtext">We won't bombard you as a member. You'll only get a heads-up when there is a new intervention.</p>
+            <form class="signup-form">
+                <input type="text" placeholder="First Name">
+                <input type="email" placeholder="Email">
+                <button type="submit">Sign Up</button>
+            </form>
+        </aside>
+    </section>
+
+    <footer>
+        <div class="footer-links">
+            <a href="#">Who is Rouser?</a>
+            <a href="#">Shout out</a>
+        </div>
+        <div class="footer-credits">
+            <span>💚 Made with love by ED.</span>
+            <div class="footer-logo"><span>REGISTERED CHARITY</span></div>
+        </div>
+    </footer>
+
+    <div class="spacer"><span>Scroll Up</span></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const heroSection = document.getElementById('hero');
+            const sidebar = document.getElementById('sidebar');
+
+            // Options for the observer (e.g., trigger when 30% of the element is visible)
+            const options = {
+                root: null, // relative to the viewport
+                rootMargin: '0px',
+                threshold: 0.3 
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    // If the element is intersecting (visible on screen)
+                    if (entry.isIntersecting) {
+                        sidebar.classList.add('is-visible');
+                    } else {
+                        // If the element is not intersecting (scrolled out of view)
+                        sidebar.classList.remove('is-visible');
+                    }
+                });
+            }, options);
+
+            // Start observing the hero section
+            observer.observe(heroSection);
+        });
+    </script>
+
+</body>
+</html>
